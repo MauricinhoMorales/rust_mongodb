@@ -27,6 +27,25 @@ impl TryFrom<CreateWalletRequest> for Wallet {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct DeleteWalletRequest {
+pub struct IdWalletRequest {
     pub id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateWalletRequest {
+    pub id: String,
+    pub name: String,
+    pub amount: i64,
+}
+
+impl TryFrom<UpdateWalletRequest> for Wallet {
+    type Error = Box<dyn std::error::Error>;
+
+    fn try_from(item: UpdateWalletRequest) -> Result<Self, Self::Error> {
+        Ok(Self {
+            _id: ObjectId::parse_str(item.id.as_str())?,
+            name: item.name,
+            amount: item.amount,
+        })
+    }
 }

@@ -50,7 +50,59 @@ impl Database {
                     .await
                     .ok()
                     .expect("Error deleting wallet");
+
                 return Ok(result);
+            }
+            Err(_) => Err(Error::DeserializationError {
+                message: String::from("Invalid ID"),
+            }),
+        }
+    }
+
+    pub async fn update_wallet(
+        &self,
+        wallet_id: &str,
+        updated_wallet: Wallet,
+    ) -> Result<Option<Wallet>, Error> {
+        match ObjectId::parse_str(wallet_id) {
+            Ok(object_id) => {
+                // Create a filter using the _id field
+                let filter = doc! { "_id": object_id };
+                let update = doc! {
+                    "$set": {
+                        "name": updated_wallet.name,
+                        "amount": updated_wallet.amount,
+                    }
+                };
+
+                let result = self
+                    .wallets
+                    .find_one_and_update(filter, update)
+                    .await
+                    .ok()
+                    .expect("Error updating wallet");
+
+                return Ok(result);
+            }
+            Err(_) => Err(Error::DeserializationError {
+                message: String::from("Invalid ID"),
+            }),
+        }
+    }
+
+    pub async fn get_wallet(&self, wallet_id: &str) -> Result<Option<Wallet>, Error> {
+        match ObjectId::parse_str(wallet_id) {
+            Ok(object_id) => {
+                // Create a filter using the _id field
+                let filter = doc! { "_id": object_id };
+
+                let wallet = self
+                    .wallets
+                    .find_one(filter)
+                    .await
+                    .ok()
+                    .expect("Error getting wallet");
+                return Ok(wallet);
             }
             Err(_) => Err(Error::DeserializationError {
                 message: String::from("Invalid ID"),
