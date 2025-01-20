@@ -21,6 +21,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(db_data.clone())
             .service(test)
             .service(create_wallet)
+            .service(delete_wallet)
     })
     .bind(("127.0.0.1", 5001))?
     .run()

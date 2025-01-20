@@ -1,5 +1,10 @@
 use dotenv::dotenv;
-use mongodb::{bson::extjson::de::Error, results::InsertOneResult, Client, Collection};
+use mongodb::bson::oid::ObjectId;
+use mongodb::{
+    bson::{doc, extjson::de::Error},
+    results::{DeleteResult, InsertOneResult},
+    Client, Collection,
+};
 
 use crate::{config, models::wallet_model::Wallet};
 
@@ -30,5 +35,26 @@ impl Database {
             .expect("Error creating wallet");
 
         Ok(result)
+    }
+
+    pub async fn delete_wallet(&self, wallet_id: &str) -> Result<DeleteResult, Error> {
+        match ObjectId::parse_str(wallet_id) {
+            Ok(object_id) => {
+                // Create a filter using the _id field
+                let filter = doc! { "_id": object_id };
+
+                // Attempt to delete the wallet and return the result
+                let result = self
+                    .wallets
+                    .delete_one(filter)
+                    .await
+                    .ok()
+                    .expect("Error deleting wallet");
+                return Ok(result);
+            }
+            Err(_) => Err(Error::DeserializationError {
+                message: String::from("Invalid ID"),
+            }),
+        }
     }
 }

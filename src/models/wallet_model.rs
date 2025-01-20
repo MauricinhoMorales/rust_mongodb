@@ -5,23 +5,28 @@ use serde::{Deserialize, Serialize};
 pub struct Wallet {
     pub _id: ObjectId,
     pub name: String,
-    pub amount: u64,
+    pub amount: i64,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct WalletRequest {
+pub struct CreateWalletRequest {
     pub name: String,
-    pub amount: u64,
+    pub amount: i64,
 }
 
-impl TryFrom<WalletRequest> for Wallet {
+impl TryFrom<CreateWalletRequest> for Wallet {
     type Error = Box<dyn std::error::Error>;
 
-    fn try_from(item: WalletRequest) -> Result<Self, Self::Error> {
+    fn try_from(item: CreateWalletRequest) -> Result<Self, Self::Error> {
         Ok(Self {
             _id: ObjectId::new(),
             name: item.name,
             amount: item.amount,
         })
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeleteWalletRequest {
+    pub id: String,
 }
